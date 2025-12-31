@@ -4,21 +4,19 @@ public class Main {
     public static final Scanner scanner = new Scanner(System.in);
 
     // Eventos ->
-    // TODO: provavelmente criar uma variável public static int totalEventosCadastrados = 0;
     public static int totalEventosCadastrados = 0;
-    public static int[] eventoCadastrado = new int[100];
     public static List<String> nomeEventoCadastrado = new ArrayList<>();
     public static List<String> dataEventoCadastrado = new ArrayList<>();
     public static List<String> localEventoCadastrado = new ArrayList<>();
     public static List<Integer> capacidadeEventoCadastrado = new ArrayList<>();
+    public static List<Integer> idEventoCadastrado = new ArrayList<>();
 
     // Participantes ->
     public static int totalParticipantesCadastrados = 0;
     public static int[] participanteCadastrado = new int[100];
     public static List<String> nomeParticipanteCadastrado = new ArrayList<>();
     public static List<Integer> contatoParticipateCadastrado = new ArrayList<>();
-    public static List<Integer> idEventoCadastrado = new ArrayList<>();
-    public static int idEvento;
+    public static List<Integer> idParticipanteCadastrado = new ArrayList<>();
 
     public static void main(String[] args) {
         login();
@@ -45,15 +43,9 @@ public class Main {
 
                 switch (opcao) {
                     case 1 -> cadastrarEvento();
-                    case 2 -> {
-                        listarEventos();
-                        System.out.println("Eventos listados com sucesso!");
-                    }
+                    case 2 -> listarEventos(opcao);
                     case 3 -> inscreverParticipante();
-                    case 4 -> {
-                        System.out.println("Participantes inscritos exibidos com sucesso!");
-                        exibirParticipantesInscritos();
-                    }
+                    case 4 -> exibirParticipantesInscritos(opcao);
                     case 5 -> confirmarPresencaParticipante();
                     case 6 -> {
                         System.out.println("Saindo...");
@@ -80,6 +72,7 @@ public class Main {
     }
 
     public static void cadastrarEvento() {
+        System.out.println("              Cadastrar Evento\n--------------------------------------------");
         System.out.println("Digite o nome do evento:");
         String nome = scanner.nextLine();
         System.out.println("Digite a data do evento:");
@@ -109,7 +102,7 @@ public class Main {
         System.out.println("Evento " + nome + " cadastrado com sucesso!");
     }
 
-    public static void listarEventos() {
+    public static void listarEventos(int opcao) {
         if (totalEventosCadastrados == 0) {
             System.out.println("Nenhum evento cadastrado anteriormente.");
             return;
@@ -125,9 +118,13 @@ public class Main {
             System.out.println("--------------------------------------------");
         }
 
+        if (opcao == 2) {
+            System.out.println("Eventos listados com sucesso!");
+        }
     }
 
     public static void inscreverParticipante() {
+        System.out.println("           Inscrever Participante\n--------------------------------------------");
         System.out.println("Digite o nome do participante:");
         String nome = scanner.nextLine();
 
@@ -144,20 +141,22 @@ public class Main {
             }
         } while (true);
 
+        int idEvento;
         do {
             System.out.println("--------------------------------------------");
-            listarEventos();
+            listarEventos(0);
             System.out.println("Digite o ID do evento para inscrever o participante:");
             idEvento = scanner.nextInt();
 
             if (idEventoCadastrado.contains(idEvento)) {
                 if (participanteCadastrado[idEvento - 1] < capacidadeEventoCadastrado.get(idEvento - 1)) {
+                    participanteCadastrado[idEvento - 1]++;
+                    idParticipanteCadastrado.add(idEvento - 1);
+                    totalParticipantesCadastrados++;
+
                     nomeParticipanteCadastrado.add(nome);
                     contatoParticipateCadastrado.add(contato);
-
-                    participanteCadastrado[idEvento - 1]++;
-                    totalParticipantesCadastrados++;
-                    System.out.println("Participante " + nome + " inscrito no evento " + nomeEventoCadastrado.get(participanteCadastrado[idEvento]) + " com sucesso!");
+                    System.out.println("Participante " + nome + " inscrito no evento " + nomeEventoCadastrado.get(idEvento - 1) + " com sucesso!");
                 } else {
                     System.out.println("Evento lotado! Não foi possível inscrever o participante.");
                 }
@@ -169,7 +168,7 @@ public class Main {
         } while (true);
     }
 
-    public static void exibirParticipantesInscritos() {
+    public static void exibirParticipantesInscritos(int opcao) {
         if (totalParticipantesCadastrados == 0) {
             System.out.println("Nenhum participante cadastrado anteriormente.");
             return;
@@ -179,9 +178,12 @@ public class Main {
             System.out.println("Participante " + (i + 1));
             System.out.println("Nome: " + nomeParticipanteCadastrado.get(i));
             System.out.println("Contato: " + contatoParticipateCadastrado.get(i));
-            // TODO: Evento relacionado ao participante
-            System.out.println("Evento: " + nomeEventoCadastrado.get(eventoCadastrado[idEvento]));
+            System.out.println("Evento: " +  nomeEventoCadastrado.get(idParticipanteCadastrado.get(i)));
             System.out.println("--------------------------------------------");
+        }
+
+        if (opcao == 4) {
+            System.out.println("Participantes inscritos exibidos com sucesso!");
         }
     }
 
@@ -191,27 +193,39 @@ public class Main {
             return;
         }
 
-        System.out.println("--------------------------------------------");
-        exibirParticipantesInscritos();
-        System.out.println("--------------------------------------------");
-        System.out.println("Digite nome do participante:");
-        String nome = scanner.nextLine();
-
         do {
-            System.out.println("Você deseja confirmar presença do participante " + nome + "? (s/n)");
-            String resposta = scanner.nextLine();
-            resposta = resposta.toLowerCase();
+            try {
+                System.out.println("      Confirmar Presença de Participante\n--------------------------------------------");
+                exibirParticipantesInscritos(0);
+                System.out.println("Digite o ID do participante:");
+                int idParticipante = scanner.nextInt();
+                scanner.nextLine();
 
-            if (resposta.equalsIgnoreCase("s") || resposta.equalsIgnoreCase("sim")) {
-                System.out.println("Presença confirmada com sucesso!");
-                break;
-            } else if (resposta.equalsIgnoreCase("n") || resposta.equalsIgnoreCase("não") || resposta.equalsIgnoreCase("nao")) {
-                System.out.println("Presença não foi confirmada.");
-                break;
-            } else {
-                System.out.println("Resposta inválida! Tente novamente.");
+                if (idParticipanteCadastrado.contains(idParticipante - 1)) {
+                    do {
+                        System.out.println("Você deseja confirmar presença do participante " + nomeParticipanteCadastrado.get(idParticipante) + "? (s/n)");
+                        String resposta = scanner.nextLine();
+                        resposta = resposta.toLowerCase();
+
+                        if (resposta.equalsIgnoreCase("s") || resposta.equalsIgnoreCase("sim")) {
+                            System.out.println("Presença confirmada com sucesso!");
+                            break;
+                        } else if (resposta.equalsIgnoreCase("n") || resposta.equalsIgnoreCase("não") || resposta.equalsIgnoreCase("nao")) {
+                            System.out.println("Presença não foi confirmada.");
+                            break;
+                        } else {
+                            System.out.println("Resposta inválida! Tente novamente.");
+                        }
+                    } while (true);
+
+                    break;
+                } else {
+                    System.out.println("ID do participante inválido! Tente novamente.\n--------------------------------------------");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("[ERRO]: Digite um número!");
             }
-         } while (true);
+        } while (true);
     }
 
 }
