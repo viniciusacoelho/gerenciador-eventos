@@ -1,22 +1,28 @@
-import java.util.*;
+import java.util.Scanner;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.InputMismatchException;
 
 public class Main {
     public static final Scanner scanner = new Scanner(System.in);
 
     // Eventos ->
-    public static int totalEventosCadastrados = 0;
+    public static List<Integer> idEventoCadastrado = new ArrayList<>();
     public static List<String> nomeEventoCadastrado = new ArrayList<>();
     public static List<String> dataEventoCadastrado = new ArrayList<>();
     public static List<String> localEventoCadastrado = new ArrayList<>();
     public static List<Integer> capacidadeEventoCadastrado = new ArrayList<>();
-    public static List<Integer> idEventoCadastrado = new ArrayList<>();
+    public static int totalEventosCadastrados = 0;
 
     // Participantes ->
-    public static int totalParticipantesCadastrados = 0;
-    public static int[] participanteCadastrado = new int[100];
+    public static List<Integer> idParticipanteCadastrado = new ArrayList<>();
     public static List<String> nomeParticipanteCadastrado = new ArrayList<>();
     public static List<Integer> contatoParticipateCadastrado = new ArrayList<>();
-    public static List<Integer> idParticipanteCadastrado = new ArrayList<>();
+    public static int totalParticipantesCadastrados = 0;
+
+    // Eventos e Participantes ->
+    public static List<Integer> participanteCadastradoEvento = new ArrayList<>();
+    public static int[] numeroParticipantesCadastradosEvento = new int[100];
 
     public static void main(String[] args) {
         login();
@@ -80,7 +86,7 @@ public class Main {
         System.out.println("Digite o local do evento:");
         String local = scanner.nextLine();
 
-        int capacidade = 0;
+        int capacidade;
         do {
             try {
                 System.out.println("Digite a capacidade do evento:");
@@ -114,7 +120,11 @@ public class Main {
             System.out.println("Data: " + dataEventoCadastrado.get(i));
             System.out.println("Local: " + localEventoCadastrado.get(i));
             System.out.println("Capacidade: " + capacidadeEventoCadastrado.get(i));
-            System.out.println("Número de Participantes: " + participanteCadastrado[i]);
+            if (totalParticipantesCadastrados != 0) {
+                System.out.println("Número de Participantes: " + numeroParticipantesCadastradosEvento[i]);
+            } else {
+                System.out.println("Número de Participantes: " + 0);
+            }
             System.out.println("--------------------------------------------");
         }
 
@@ -124,6 +134,11 @@ public class Main {
     }
 
     public static void inscreverParticipante() {
+        if (totalEventosCadastrados == 0) {
+            System.out.println("Nenhum evento cadastrado anteriormente.");
+            return;
+        }
+
         System.out.println("           Inscrever Participante\n--------------------------------------------");
         System.out.println("Digite o nome do participante:");
         String nome = scanner.nextLine();
@@ -141,18 +156,19 @@ public class Main {
             }
         } while (true);
 
-        int idEvento;
         do {
             System.out.println("--------------------------------------------");
             listarEventos(0);
             System.out.println("Digite o ID do evento para inscrever o participante:");
-            idEvento = scanner.nextInt();
+            int idEvento = scanner.nextInt();
+            System.out.println("--------------------------------------------");
 
             if (idEventoCadastrado.contains(idEvento)) {
-                if (participanteCadastrado[idEvento - 1] < capacidadeEventoCadastrado.get(idEvento - 1)) {
-                    participanteCadastrado[idEvento - 1]++;
-                    idParticipanteCadastrado.add(idEvento - 1);
+                if (numeroParticipantesCadastradosEvento[idEvento - 1] < capacidadeEventoCadastrado.get(idEvento - 1)) {
+                    numeroParticipantesCadastradosEvento[idEvento - 1]++;
+                    participanteCadastradoEvento.add(idEvento - 1);
                     totalParticipantesCadastrados++;
+                    idParticipanteCadastrado.add(totalParticipantesCadastrados);
 
                     nomeParticipanteCadastrado.add(nome);
                     contatoParticipateCadastrado.add(contato);
@@ -160,8 +176,8 @@ public class Main {
                 } else {
                     System.out.println("Evento lotado! Não foi possível inscrever o participante.");
                 }
-
                 break;
+
             } else {
                 System.out.println("ID do evento inválido! Tente novamente.");
             }
@@ -178,7 +194,7 @@ public class Main {
             System.out.println("Participante " + (i + 1));
             System.out.println("Nome: " + nomeParticipanteCadastrado.get(i));
             System.out.println("Contato: " + contatoParticipateCadastrado.get(i));
-            System.out.println("Evento: " +  nomeEventoCadastrado.get(idParticipanteCadastrado.get(i)));
+            System.out.println("Evento: " +  nomeEventoCadastrado.get(participanteCadastradoEvento.get(i)));
             System.out.println("--------------------------------------------");
         }
 
@@ -193,49 +209,41 @@ public class Main {
             return;
         }
 
+        int idParticipante;
         do {
             try {
                 System.out.println("      Confirmar Presença de Participante\n--------------------------------------------");
                 exibirParticipantesInscritos(0);
                 System.out.println("Digite o ID do participante:");
-                int idParticipante = scanner.nextInt();
+                idParticipante = scanner.nextInt();
                 scanner.nextLine();
-
-                if (idParticipanteCadastrado.contains(idParticipante - 1)) {
-                    do {
-                        System.out.println("Você deseja confirmar presença do participante " + nomeParticipanteCadastrado.get(idParticipante) + "? (s/n)");
-                        String resposta = scanner.nextLine();
-                        resposta = resposta.toLowerCase();
-
-                        if (resposta.equalsIgnoreCase("s") || resposta.equalsIgnoreCase("sim")) {
-                            System.out.println("Presença confirmada com sucesso!");
-                            break;
-                        } else if (resposta.equalsIgnoreCase("n") || resposta.equalsIgnoreCase("não") || resposta.equalsIgnoreCase("nao")) {
-                            System.out.println("Presença não foi confirmada.");
-                            break;
-                        } else {
-                            System.out.println("Resposta inválida! Tente novamente.");
-                        }
-                    } while (true);
-
-                    break;
-                } else {
-                    System.out.println("ID do participante inválido! Tente novamente.\n--------------------------------------------");
-                }
+                break;
             } catch (InputMismatchException e) {
                 System.out.println("[ERRO]: Digite um número!");
+            }
+        } while (true);
+
+        do {
+            if (idParticipanteCadastrado.contains(idParticipante)) {
+                System.out.println("Você deseja confirmar presença do participante " + nomeParticipanteCadastrado.get(idParticipante - 1) + "? (s/n)");
+                String resposta = scanner.nextLine();
+                resposta = resposta.toLowerCase();
+
+                if (resposta.equalsIgnoreCase("s") || resposta.equalsIgnoreCase("sim")) {
+                    System.out.println("Presença confirmada com sucesso!");
+                    break;
+                } else if (resposta.equalsIgnoreCase("n") || resposta.equalsIgnoreCase("não") || resposta.equalsIgnoreCase("nao")) {
+                    System.out.println("Presença não foi confirmada.");
+                    break;
+                } else {
+                    System.out.println("Resposta inválida! Tente novamente.");
+                }
+                break;
+
+            } else {
+                System.out.println("ID do participante inválido! Tente novamente.\n--------------------------------------------");
             }
         } while (true);
     }
 
 }
-
-/*
-    Funções:
-    - Login
-    - Cadastrar Evento (Nome, Data, Local, Capacidade)
-    - Listar Eventos
-    - Inscrever Participante (Nome, Contato)
-    - Exibir Participantes Inscritos
-    - Confirmar Presença de Participante
-*/
